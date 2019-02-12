@@ -1,0 +1,229 @@
+#VRML V2.0 utf8
+
+EXTERNPROTO Vector [
+	eventIn	SFVec3f	set_Position
+	eventIn	SFVec3f	set_Direction
+	field SFVec3f Position
+	field SFVec3f Direction
+	field SFFloat StemRadius
+	field SFFloat HeadRadius
+	field SFFloat HeadSize
+	field SFColor HeadColor
+	field	SFColor	StemColor
+]"p_vector.wrl"
+
+#DEF rVector Vector {
+#  StemRadius .02
+#  HeadRadius .06
+#  HeadSize .4
+#  HeadColor 1 0 0
+#  StemColor 1 0 0
+#}
+
+#DEF vVector Vector {
+#  StemRadius .02
+#  HeadRadius .06
+#  HeadSize .4
+#  HeadColor 0 1 0
+#  StemColor 0 1 0
+#}
+
+#DEF aVector Vector {
+#  StemRadius .02
+#  HeadRadius .06
+#  HeadSize .4
+#  HeadColor 1 1 1
+#  StemColor 1 1 1
+#}
+
+DEF	Bila Transform {
+	translation	0 0 0
+	children [
+		Shape	{
+			geometry Sphere	{ radius .1 }
+			appearance Appearance	{
+				material Material	{}
+			}
+		}
+	]
+}
+
+DEF	Grafic Transform {
+	translation	0 0 0
+	children [
+		Shape	{
+			geometry DEF grafic IndexedLineSet {
+				coord	Coordinate {}
+				coordIndex []
+			}
+			appearance Appearance	{
+				material Material	{
+					emissiveColor	1 0 0
+				}
+			}
+		}
+	]
+}
+
+
+DEF	Grafic1 Transform {
+	translation	0 0 0
+	children [
+		Shape	{
+			geometry DEF grafic1 IndexedLineSet {
+				coord	Coordinate {}
+				coordIndex []
+			}
+			appearance Appearance	{
+				material Material	{
+					emissiveColor	.4 .4 .4
+				}
+			}
+		}
+	]
+}
+
+DEF	Grafic2 Transform {
+	translation	0 0 0
+	children [
+		Shape	{
+			geometry DEF grafic2 IndexedLineSet {
+				coord	Coordinate {}
+				coordIndex []
+			}
+			appearance Appearance	{
+				material Material	{
+					emissiveColor	.7 .7 .7
+				}
+			}
+		}
+	]
+}
+
+DEF	Axa Shape{
+  geometry IndexedLineSet	{
+		coord	Coordinate {
+		  point	[
+			  -9 0 -.001
+				 9 0 -.001
+		  ]
+		}
+		coordIndex [ 0 1]
+	}
+	appearance Appearance	{
+	  material Material	{
+		  emissiveColor	.5 .5 .5
+		}
+	}
+}
+
+DEF	Timer TimeSensor {
+	loop TRUE
+}
+
+DEF	Computer Script {
+#  field SFNode rVector USE rVector
+#  field SFNode vVector USE vVector
+#  field SFNode aVector USE aVector
+	eventIn	SFTime tick
+	field	SFNode grafic USE	grafic
+	field	SFNode grafic1 USE grafic1
+	field	SFNode grafic2 USE grafic2
+	field SFFloat A 2.0
+  field SFFloat T 5.0
+	eventOut SFVec3f position_changed
+	url	"javascript:
+		var pi = Math.PI;
+		var firstTime = true;
+		var N = 300;
+
+		var points = new MFVec3f();
+		var idx = new MFInt32();
+
+		var points1 = new MFVec3f();
+		var idx1 = new MFInt32();
+
+		var points2 = new MFVec3f();
+		var idx2 = new MFInt32();
+
+		var dx = 0.05;
+		var t = 0.0;
+		var dt = .02;
+    var v = 0.0;
+    var omega = 2 * Math.PI/T;
+		var x0 = 6;
+		var phi0 = Math.PI;
+		var m = 1.0;
+		var Ec = 0.0;
+		var Ep = 0.0;
+		var Et = 0.0;
+		var y = 0.0;
+
+		function initialize(){
+			y = A * Math.cos(phi0);
+			v = - omega * A * Math.sin(phi0);
+			for (i=0; i<N; i++){
+				points[i] = new SFVec3f(-N * dx + i * dx + x0, 0.5 * m * (omega * A) * (omega * A), 0);
+			  idx[i] = i; 
+			}	
+			grafic.coord.point = points;
+			grafic.coordIndex = idx;
+
+			for (i=0; i<N; i++){
+				points1[i] = new SFVec3f(-N * dx + i * dx + x0, 0.5 * m * v * v, 0);
+			  idx1[i] = i; 
+			}	
+			grafic1.coord.point = points1;
+			grafic1.coordIndex = idx1;
+
+			for (i=0; i<N; i++){
+				points2[i] = new SFVec3f(-N * dx + i * dx + x0, 0.5 * m * (omega * y) * (omega * y), 0);
+			  idx2[i] = i; 
+			}	
+			grafic2.coord.point = points2;
+			grafic2.coordIndex = idx2;
+
+		}
+		
+		function tick(time){
+			t += dt;
+      omega = 2*Math.PI/T;
+			y = A * Math.cos(omega * t + phi0);
+      v = -omega * A * Math.sin(omega * t + phi0);
+//      a = -omega*omega*y;
+			Ec = 0.5 * m * v * v;
+			Et = 0.5 * m * (omega * A) * (omega * A);
+			Ep = 0.5 * m * (omega * y) * (omega * y);
+
+			for (i=0; i<N-1; i++){
+				points[i].y = points[i+1].y;
+			}
+			points[N-1].y = Et;
+			grafic.coord.point = points;
+
+			for (i=0; i<N-1; i++){
+				points1[i].y = points1[i+1].y;
+			}
+			points1[N-1].y = Ec;
+			grafic1.coord.point = points1;
+
+			for (i=0; i<N-1; i++){
+				points2[i].y = points2[i+1].y;
+			}
+			points2[N-1].y = Ep;
+			grafic2.coord.point = points2;
+
+			position_changed = new SFVec3f(x0, y, 0);
+//      rVector.set_Position = new SFVec3f(x0, 0, 0);
+//      rVector.set_Direction = new SFVec3f(0, y, 0);
+
+//      vVector.set_Position = new SFVec3f(-6.1, y, 0);
+//      vVector.set_Direction = new SFVec3f(0, v, 0);
+//      aVector.set_Position = new SFVec3f(-5.9, y, 0);
+//      aVector.set_Direction = new SFVec3f(0, a, 0);
+		}
+	"
+}
+
+ROUTE	Timer.time TO	Computer.tick
+ROUTE	Computer.position_changed	TO Bila.translation

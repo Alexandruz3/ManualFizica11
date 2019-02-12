@@ -1,0 +1,52 @@
+#VRML V2.0 utf8
+
+Viewpoint	{
+	position 10 2 10
+	orientation	-.2 1 0 .82
+}	
+
+Background {
+  skyColor 1 1 1
+}
+
+DEF	Con Transform	{
+	translation	1.5 0 0
+	rotation 0 0 1 1.57
+	children [
+		Shape	{
+			geometry Cone	{
+				bottomRadius .5
+				height 3
+			}
+			appearance Appearance	{
+				material Material	{
+					transparency .6
+				}
+			}
+		}
+	]	
+}
+
+DEF	Sfera Transform	{
+	children [
+		Shape	{
+			geometry SplineSphere	{
+				radius 3.1
+			}
+			appearance Appearance	{
+				material Material	{
+					diffuseColor .5 .5 .5
+					transparency .9
+				}
+			}
+		}
+	]
+}
+
+Shape {
+  appearance Appearance { material Material { emissiveColor 0 0 0 } }
+  geometry IndexedLineSet {
+    coord Coordinate { point [ 0 -5 0, 0 5 0, -5 0 0, 5 0 0, 0 0 -5, 0 0 5 ] }
+    coordIndex [ 0 1 -1, 2 3 -1, 4 5 -1 ]
+  }
+}

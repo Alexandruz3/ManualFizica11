@@ -1,0 +1,75 @@
+<HTML>
+<HEAD>
+  <SCRIPT language="JavaScript">
+    
+    function detectNN(){
+      result=false;
+      var numPlugins=0;
+      if (navigator.plugins) numPlugins=navigator.plugins.length;
+      for (var i=0; i<numPlugins; i++){
+        if (navigator.plugins[i].name.indexOf("Cortona") != -1) return true;
+      }
+      return result;
+    }
+    
+    function alertCortona() {
+      alertWin = window.open( "", "image", "width=400,height=300,scrollbars,resizable,left=100,top=100");
+      str='<HTML><HEAD><TITLE>Lipse&#351;te Cortona!</TITLE></HEAD>';
+      str+='<BODY>';
+      str+='<IMG src="img/alert.gif"> Pentru a putea vedea variantele interactive, navigatorul Dvs are nevoie de o extensie: plugin&minus;ul Cortona.';
+      str+='<P align=center><A href="code/cortvrml.exe">[ Instalare Cortona ]</A>';
+      str+='<P>Informa&#355;ii suplimentare despre Cortona la <P align=center><A href="http://www.parallelgraphics.com">www.parallelgraphics.com</A>';
+      str+='</BODY></HTML>';
+      alertWin.document.write(str);
+      alertWin.document.close();	
+      alertWin.focus();
+    }
+    
+    
+  </SCRIPT>
+  
+  <SCRIPT language="VBScript">
+    function detectIE()
+      On error resume next
+      detectIE = NOT IsNull(CreateObject("Cortona.Control"))
+    end function
+  </SCRIPT>
+
+
+
+</HEAD>
+<BODY bgcolor="#eeeeee">
+Aceasta este varianta electronic&#259; a lucr&#259;rii:
+<P><center><IMG src="img/cover.jpg" width=256 hspace=0></center>
+<div style="background: #bbbbbb">
+<CENTER><B>
+<P><FONT size=+1>Fizic&#259;</FONT><BR><BR>
+F1 + F2<BR><BR>
+Manual pentru clasa a XI-a<BR><BR>
+<small>Mircea Rusu&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Mircea Nistor<BR><BR>
+<A href="www.edituracorint.ro">Editura Corint</A><BR><BR>
+2006</small>
+<CENTER>
+</DIV>
+
+
+  <SCRIPT language"JavaScript">
+    var browser=navigator.appName;
+    var canCortona=false;
+        
+    if (browser=="Netscape") canCortona=detectNN();
+    else if (browser=="Microsoft Internet Explorer") canCortona=detectIE();
+    
+    if (!canCortona) alertCortona();
+  </SCRIPT>
+
+
+</BODY>
+</HTML>
+
+
+
+
+
+
+

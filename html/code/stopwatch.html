@@ -1,0 +1,68 @@
+<HTML>
+
+<HEAD>
+	<TITLE>Cronometru</TITLE>
+
+	<SCRIPT language="JavaScript">
+		var ms = 0;
+		var pornit = false;
+
+		function startStopCmd(){
+			if (!pornit) {
+				pornit = true;
+			atunci = new Date();
+			atunci.setTime(atunci.getTime() - ms)
+			}
+			else {
+				pornit = false;
+				acum = new Date();
+				ms = acum.getTime() - atunci.getTime();
+				document.cronometru.durata.value = nice(ms/1000);
+			}
+
+		}
+
+		function resetCmd(){
+			pornit = false;
+			ms = 0;
+			document.cronometru.durata.value = "0.000 ";
+		}
+
+		function afiseaza(){
+			setTimeout("afiseaza()", 50);
+			if (pornit){
+				acum = new Date();
+				ms = acum.getTime() - atunci.getTime();
+				document.cronometru.durata.value = nice(ms/1000);
+			}	
+		}
+
+		function nice(value){
+			var vStr = value.toString();
+			var pointIndex = vStr.indexOf('.');
+			if (pointIndex < 0) vStr += '.';
+			pointIndex = vStr.indexOf('.');
+			var strLen = vStr.length;
+			for (var i=0; i<=pointIndex + 3 - strLen; i++) vStr += '0';
+			return vStr + ' '; 		
+		}
+
+	</SCRIPT>
+</HEAD>
+
+<BODY onLoad="afiseaza()">
+	<BR><BR><BR>
+	<CENTER>
+	<H3>Cronometru FIZITEC SW-01</H3>
+
+	<FORM name="cronometru">
+		Durata (s): 
+		<INPUT type="text" name="durata" value="0.000 " size=6 style="text-align: right; font-weight: bold; background:gray; color: yellow">
+		<INPUT type="button" name="ssBtn" value="Start / Stop" onClick="startStopCmd()">
+		<INPUT type="button" name="resetBtn" value="Reset" onClick="resetCmd()">
+	</FORM>
+	<CENTER>
+
+</BODY>
+
+</HTML>

@@ -1,0 +1,146 @@
+#VRML V2.0 utf8
+
+EXTERNPROTO Vector [
+	eventIn	SFVec3f	set_Position
+	eventIn	SFVec3f	set_Direction
+	field SFVec3f Position
+	field SFVec3f Direction
+	field SFFloat StemRadius
+	field SFFloat HeadRadius
+	field SFFloat HeadSize
+	field SFColor HeadColor
+	field	SFColor	StemColor
+]"p_vector.wrl"
+
+DEF rVector Vector {
+  StemRadius .02
+  HeadRadius .06
+  HeadSize .4
+  HeadColor 1 1 0
+  StemColor 1 1 0
+}
+
+
+#DEF vVector Vector {
+#  StemRadius .02
+#  HeadRadius .06
+#  HeadSize .4
+#  HeadColor 0 1 0
+#  StemColor 0 1 0
+#}
+
+#DEF aVector Vector {
+#  StemRadius .02
+#  HeadRadius .06
+#  HeadSize .4
+#  HeadColor 1 1 1
+#  StemColor 1 1 1
+#}
+
+DEF	Bila Transform {
+	translation	0 0 0
+	children [
+		Shape	{
+			geometry Sphere	{ radius .1 }
+			appearance Appearance	{
+				material Material	{}
+			}
+		}
+	]
+}
+
+DEF	Grafic Transform {
+	translation	0 0 0
+	children [
+		Shape	{
+			geometry DEF grafic IndexedLineSet {
+				coord	Coordinate {}
+				coordIndex []
+			}
+			appearance Appearance	{
+				material Material	{
+					emissiveColor	1 1 0
+				}
+			}
+		}
+	]
+}
+
+DEF	Axa Shape{
+  geometry IndexedLineSet	{
+		coord	Coordinate {
+		  point	[
+			  -9 0 -.001
+				 9 0 -.001
+		  ]
+		}
+		coordIndex [ 0 1]
+	}
+	appearance Appearance	{
+	  material Material	{
+		  emissiveColor	.5 .5 .5
+		}
+	}
+}
+
+DEF	Timer TimeSensor {
+	loop TRUE
+}
+
+DEF	Computer Script {
+  field SFNode rVector USE rVector
+#  field SFNode vVector USE vVector
+#  field SFNode aVector USE aVector
+	eventIn	SFTime tick
+	field	SFNode grafic USE	grafic
+	field SFFloat A 2.0
+  field SFFloat T 5.0
+	eventOut SFVec3f position_changed
+	url	"javascript:
+		var pi = Math.PI;
+		var firstTime = true;
+		var N = 300;
+		var points = new MFVec3f();
+		var idx = new MFInt32();
+		var dx = 0.05;
+		var t = 0.0;
+		var dt = .02;
+    var v = 0.0;
+    var omega = 1.0;
+		var x0 = 6;
+		var phi0 = Math.PI;
+
+		function initialize(){
+			for (i=0; i<N; i++){
+				points[i] = new SFVec3f(-N * dx + i * dx + x0, A * Math.cos(phi0), 0);
+			  idx[i] = i; 
+			}	
+			grafic.coord.point = points;
+			grafic.coordIndex = idx;
+		}
+		
+		function tick(time){
+			t += dt;
+      omega = 2*Math.PI/T;
+			y = A * Math.cos(omega * t + phi0);
+//      v = -omega * A * Math.sin(omega * t + phi0);
+//      a = -omega*omega*y;
+			for (i=0; i<N-1; i++){
+				points[i].y = points[i+1].y;
+			}
+			points[N-1].y = y;
+			grafic.coord.point = points;
+			position_changed = new SFVec3f(x0, y, 0);
+      rVector.set_Position = new SFVec3f(x0, 0, 0);
+      rVector.set_Direction = new SFVec3f(0, y, 0);
+
+//      vVector.set_Position = new SFVec3f(-6.1, y, 0);
+//      vVector.set_Direction = new SFVec3f(0, v, 0);
+//      aVector.set_Position = new SFVec3f(-5.9, y, 0);
+//      aVector.set_Direction = new SFVec3f(0, a, 0);
+		}
+	"
+}
+
+ROUTE	Timer.time TO	Computer.tick
+ROUTE	Computer.position_changed	TO Bila.translation

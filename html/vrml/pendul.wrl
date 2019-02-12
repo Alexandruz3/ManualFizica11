@@ -1,0 +1,148 @@
+#VRML V2.0 utf8
+
+				# 060531 Runge-Kutta-Nystrom algorithm added
+				# 060530 pendulum: interactive handling
+				
+				Transform {
+  				 translation 0 3 0
+  				 rotation 1 0 0 1.54
+  				 children [
+      				DEF SENSOR CylinderSensor {   
+        				 diskAngle 0.78
+      				}
+      				DEF Pendulum Transform {
+        				 children [
+					  				Shape	{
+						  				geometry IndexedLineSet	{
+							  				coord	Coordinate {
+								  				point	[
+														0 0 0
+														0 0 6
+													]
+												}
+												coordIndex [0 1]
+											}
+											appearance Appearance	{
+							  				material Material	{
+								  				emissiveColor	0 0 0
+												}
+											}
+										}
+            				Transform {
+              				 translation 0 0 6
+              				 rotation 1 0 0 1.57
+              				 children [
+                  				Shape {
+                    				 appearance Appearance {
+                        				material Material {
+                          				 diffuseColor .5 .5 .5
+                        				}
+                    				 }
+                    				 geometry Cylinder {
+                        				height .2
+                        				radius 0.1
+                    				 }
+                  				}      
+              				 ]
+            				}
+        				 ]
+      				}
+  				 ]
+				}
+
+				DEF	Timer TimeSensor {
+					enabled	FALSE
+					loop TRUE
+				}
+
+				DEF	Mover Script {
+  				eventIn	SFBool drop
+					eventIn	SFFloat	set_fraction
+					eventIn	SFRotation set_rotation
+
+					field	SFTime startTime 0
+					field	SFTime t 0
+					field	SFFloat	angle 0.0
+
+					eventOut SFBool	enable_timer
+					eventOut SFRotation	rotation_changed
+					eventOut SFFloat offset_changed
+
+  				url	"javascript:
+
+					  var g = 9.8;
+						var l = 6.0;
+						var m = 0.1;
+
+					  var x = 0.0;
+						var d_x = 0.0;
+
+						var t_h = 0.0;
+						var d_xh = 0.0;
+						var h = 0.0;
+						var lastTime = 0.0;
+
+	  				function set_rotation(sr, time){
+		  				angle = sr[3];
+	  				}
+	   
+	  				function drop(dp, time){
+							if (!dp) {
+		    				startTime = time;
+			  				enable_timer = true;
+								x = angle;
+							} 
+							else {
+			  				startTime = 0;
+								lastTime  = 0;
+								enable_timer = false;
+                h = 0.0;
+								d_x = 0.0;
+								t_h = 0.0;
+								d_xh = 0.0;
+							}
+						}
+
+						function set_fraction(sf, time){
+		  				if (enable_timer){
+			  				t = time - startTime;
+								h = (t - lastTime) / 12;
+								update();
+							}
+						}
+
+						function ff(t, x, dx){
+							return (-g / l * Math.sin(x));
+						}
+
+						function RKN(h, t, x, dx, f){
+							var ka, kb, kc, kd, tab, xab;
+							ka  = 2 * h * f(t, x, dx);
+							tab = t + 6 * h;
+							xab = x + 6 * h * dx + 9 * h * ka;
+							kb  = 2 * h * f(tab, xab, dx + 3 * ka);
+							kc  = 2 * h * f(tab, xab, dx + 3 * kb);
+							kd  = 2 * h * f(t + 12 * h, x + 12 * h * dx + 36 * h * kb, dx + 6 * kc);
+							t_h = t + 12 * h;
+							d_xh = dx + ka + 2 * kb + 2 * kc + kd;
+							return (x + 12 * h * (dx + ka + kb + kc));
+						} 
+
+						function update(){
+              x = RKN(h, t, x, d_x, ff);
+							d_x = d_xh;
+							lastTime = t;
+							angle = x;
+							rotation_changed = new SFRotation (0, 1, 0, angle);
+							offset_changed = angle;
+						}
+					"
+				}
+
+				ROUTE SENSOR.rotation_changed TO Pendulum.rotation
+				ROUTE	SENSOR.rotation_changed	TO Mover.set_rotation
+				ROUTE	SENSOR.isActive	TO Mover.drop
+				ROUTE	Mover.offset_changed TO	SENSOR.offset
+				ROUTE	Mover.enable_timer TO	Timer.enabled
+				ROUTE	Mover.rotation_changed TO	Pendulum.rotation
+				ROUTE	Timer.fraction_changed TO	Mover.set_fraction

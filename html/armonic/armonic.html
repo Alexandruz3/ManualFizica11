@@ -1,0 +1,132 @@
+<HTML>
+
+<HEAD>
+
+  <TITLE>Oscilatorul armonic</TITLE>
+
+  <SCRIPT language="JavaScript" src="wz_jsgraphics.js"></SCRIPT>
+  
+  <SCRIPT language="JavaScript">
+  
+    var tbl_head = '<TABLE border=1 bgcolor=silver>'+
+                   '  <TR bgcolor=orange align=center nowrap>'+
+                   '     <TD align=center>t<BR>(s)</TD>'+
+                   '     <TD align=center>x<BR>(m)</TD>'+
+                   '     <TD align=center>v<BR>(m/s)</TD>'+
+                   '     <TD align=center>F<BR>(N)</TD>'+
+                   '     <TD align=center>a<BR>(m/s<SUP>2</SUP>)</TD>'+
+                   '     <TD align=center>&Delta;v<BR>(m/s)</TD>'+
+                   '     <TD align=center>v<SUB>m</SUB><BR>(m/s)</TD>'+
+                   '     <TD align=center>&Delta;x<BR>(m)</TD>'+
+                   '  </TR>';
+
+    function calcul(){
+      
+      js.clear();
+      js.setColor("#000000");
+      js.drawString("0", 1, 150); 
+      js.drawLine(10,   150, 1010, 150);
+      js.drawLine(1010, 150, 1005, 153);
+      js.drawLine(1010, 150, 1005, 147);
+      js.drawString("t", 1011, 150);	
+      js.drawLine(10,   290, 10, 10);
+      js.drawLine(10,    10,  7, 15);
+      js.drawLine(10,    10, 13, 15); 
+      js.drawString("x", 1, 10);
+      js.paint();
+      js.setColor("#ff0000");
+
+      k  = parseFloat(in_k.value);
+      m  = parseFloat(in_m.value);
+      x0 = parseFloat(in_x0.value);
+      v0 = parseFloat(in_v0.value);
+      dt = parseFloat(in_dt.value);
+      N  = parseFloat(in_N.value);
+      
+      t = 0.0;
+      x = x0;
+      v = v0;
+      
+      nDec = 3;
+      
+      outWin = window.open('', '', 'left=400, top=50, width=550 height=600, scrollbars=yes, resizable=yes');
+                
+      outWin.document.open();
+
+      outWin.document.write(tbl_head);
+      
+      
+      //Bucla principal&#259;
+      for (i=0; i<=N; i++) {
+        
+        F = -k * x;
+        a = F / m;
+        dv = a * dt;
+        vm = v + dv/2;
+        dx = vm * dt;
+             
+        js.drawLine(10 + Math.round(100*t), 150-Math.round(100*x), 10 + Math.round(100*(t+dt)), 150-Math.round(100*(x+dx)));
+        js.paint();
+
+        tbl_row = '<TR bgcolor=#efefef>'+
+                  '  <TD nowrap>' + t.toFixed(nDec) + '</TD>'+
+                  '  <TD nowrap>' + x.toFixed(nDec) + '</TD>'+ 
+                  '  <TD nowrap>' + v.toFixed(nDec) + '</TD>'+ 
+                  '  <TD nowrap>' + F.toFixed(nDec) + '</TD>'+ 
+                  '  <TD nowrap>' + a.toFixed(nDec) + '</TD>'+ 
+                  '  <TD>&nbsp;</TD>'+ 
+                  '  <TD>&nbsp;</TD>'+ 
+                  '  <TD>&nbsp;</TD>'+ 
+                  '</TR>'+
+                  '<TR bgcolor=white>'+
+                  '  <TD>&nbsp;</TD>'+
+                  '  <TD>&nbsp;</TD>'+ 
+                  '  <TD>&nbsp;</TD>'+ 
+                  '  <TD>&nbsp;</TD>'+ 
+                  '  <TD>&nbsp;</TD>'+ 
+                  '  <TD nowrap>' + dv.toFixed(nDec) + '</TD>'+ 
+                  '  <TD nowrap>' + vm.toFixed(nDec) + '</TD>'+ 
+                  '  <TD nowrap>' + dx.toFixed(nDec) + '</TD>'+ 
+                  '</TR>';
+          
+        outWin.document.write(tbl_row);  
+
+      
+        t += dt;
+        v += dv;
+        x += dx;
+      }
+      
+      outWin.document.write('</TABLE>');
+      outWin.document.close();
+    }
+  
+  </SCRIPT>
+
+</HEAD>
+
+<BODY>
+
+
+  <H2>Oscilatorul armonic</H2>
+  <H3>Calculul pas-cu-pas al pozi&#355;iei</H3>  
+
+    <P>constanta elastic&#259; (k): <INPUT name="in_k" value=1.0>
+    <P>masa corpului (m): <INPUT name="in_m" value=1.0>
+    <P>pozi&#355;ia ini&#355;ial&#259; (x<SUB>0</SUB>): <INPUT name="in_x0" value=1.0>
+    <P>viteza ini&#355;ial&#259; (v<SUB>0</SUB>): <INPUT name="in_v0" value=0.0>
+    <P>pasul de timp (&Delta;t): <INPUT name="in_dt" value = 0.1>
+    <P>num&#259;rul de pa&#351;i (N): <INPUT name="in_N" value = 100>  
+
+  <HR>
+  <INPUT name="btn_calcul" type="button" value="Calculeaz&#259; !" onClick=calcul()>
+  <HR>
+  
+  <DIV id="canvas" style="background:#efefef;position:relative; height:300;width:100%"></DIV>  
+  <SCRIPT language="JavaScript">var js = new jsGraphics("canvas");</SCRIPT>
+
+</BODY>
+
+</HTML>
+
+
